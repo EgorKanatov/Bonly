@@ -22,10 +22,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -64,73 +66,79 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            Card(Modifier.fillMaxWidth()) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Row() {
-                        InputTextField(
-                            name = "\uD83C\uDFE6 Номинал",
-                            value = state.value.nominal,
-                            onValueChange = viewModel::onNominalChanged,
-                            keyboardType = KeyboardType.Decimal,
-                            modifier = Modifier.fillMaxWidth(0.5f)
+            Card(Modifier.fillMaxWidth().padding(6.dp)) {
+                Column(Modifier.padding(6.dp)) {
+                    Text("Параметры облигации", modifier = Modifier.padding(6.dp), fontSize = 16.sp)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Row() {
+                            InputTextField(
+                                name = "\uD83C\uDFE6 Номинал",
+                                value = state.value.nominal,
+                                onValueChange = viewModel::onNominalChanged,
+                                keyboardType = KeyboardType.Decimal,
+                                modifier = Modifier.fillMaxWidth(0.5f)
 
-                        )
+                            )
+                            InputTextField(
+                                name = "\uD83D\uDCC8 Текущая цена (%)",
+                                value = state.value.pricePercent,
+                                onValueChange = viewModel::onPercentChanged,
+                                keyboardType = KeyboardType.Decimal,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                         InputTextField(
-                            name = "\uD83D\uDCC8 Текущая цена (%)",
-                            value = state.value.pricePercent,
-                            onValueChange = viewModel::onPercentChanged,
+                            name = "\uD83D\uDCBC Размер купона (руб)",
+                            value = state.value.coupon,
+                            onValueChange = viewModel::onCouponChanged,
                             keyboardType = KeyboardType.Decimal,
                             modifier = Modifier.fillMaxWidth()
+
+                        )
+                        InputTextField(
+                            name = "\uD83D\uDD8A НКД (руб)",
+                            value = state.value.nkd,
+                            onValueChange = viewModel::onNkdChanged,
+                            keyboardType = KeyboardType.Decimal,
+                            modifier = Modifier.fillMaxWidth()
+
+                        )
+                        InputTextField(
+                            name = "⏳ Выплат в год",
+                            value = state.value.couponsPerYear,
+                            onValueChange = viewModel::onCouponsPerYearChanged,
+                            keyboardType = KeyboardType.Number,
+                            modifier = Modifier.fillMaxWidth()
+
+                        )
+                        InputTextField(
+                            name = "\uD83D\uDDD3 Дней до погашения",
+                            value = state.value.daysToMaturity,
+                            onValueChange = viewModel::onDaysToMaturityChanged,
+                            keyboardType = KeyboardType.Number,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        TextField(
+                            value = "Используется ставка НДФЛ 13%",
+                            textStyle = LocalTextStyle.current.copy(
+                                fontSize = 12.sp
+                            ),
+                            onValueChange = {},
+                            enabled = false,
+                            leadingIcon = {
+                                Icon(painter = painterResource(R.drawable.info_24px), null)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = Color.Transparent,
+                            )
                         )
                     }
-                    InputTextField(
-                        name = "\uD83D\uDCBC Размер купона (руб)",
-                        value = state.value.coupon,
-                        onValueChange = viewModel::onCouponChanged,
-                        keyboardType = KeyboardType.Decimal,
-                        modifier = Modifier.fillMaxWidth()
-
-                    )
-                    InputTextField(
-                        name = "\uD83D\uDD8A НКД (руб)",
-                        value = state.value.nkd,
-                        onValueChange = viewModel::onNkdChanged,
-                        keyboardType = KeyboardType.Decimal,
-                        modifier = Modifier.fillMaxWidth()
-
-                    )
-                    InputTextField(
-                        name = "⏳ Выплат в год",
-                        value = state.value.couponsPerYear,
-                        onValueChange = viewModel::onCouponsPerYearChanged,
-                        keyboardType = KeyboardType.Number,
-                        modifier = Modifier.fillMaxWidth()
-
-                    )
-                    InputTextField(
-                        name = "\uD83D\uDDD3 Дней до погашения",
-                        value = state.value.daysToMaturity,
-                        onValueChange = viewModel::onDaysToMaturityChanged,
-                        keyboardType = KeyboardType.Number,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    TextField(
-                        value = "Используется ставка НДФЛ 13% для резидентов РФ.",
-                        textStyle = LocalTextStyle.current.copy(
-                            fontSize = 12.sp
-                        ),
-                        onValueChange = {},
-                        enabled = false,
-                        leadingIcon = {
-                            Icon(painter = painterResource(R.drawable.info_24px), null)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-
-                    )
                 }
             }
-
-
         }
         item {
             Text(
