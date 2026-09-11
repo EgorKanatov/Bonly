@@ -12,7 +12,7 @@ class CalculateNetYieldUseCase @Inject constructor(
         val couponTax = taxesUseCase.calculateCouponTax(bond.coupon)
         val couponGainTax = taxesUseCase.calculateCapitalGainTax(bond.nominal, bond.clearPrice)
 
-        val profit = (bond.nominal - dirtyPrice) + (bond.coupon * bond.paydays)
+        val profit = (bond.nominal - dirtyPrice - couponGainTax) + ((bond.coupon - couponTax) * bond.paydays)
         val profitPerYear = (profit / dirtyPrice) * (365.0 / bond.daysToMaturity) * 100
         return profitPerYear
     }
