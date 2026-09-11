@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,8 +34,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: CalculatorViewModel = hiltViewModel()
-
             BonlyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Calculator(
@@ -47,7 +46,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Calculator(modifier: Modifier = Modifier) {
+fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = hiltViewModel()) {
+    val state = viewModel.state.collectAsState()
     LazyColumn(
         modifier
             .fillMaxSize()
@@ -57,52 +57,57 @@ fun Calculator(modifier: Modifier = Modifier) {
         item {
             InputTextField(
                 name = "\uD83C\uDFE6 Номинал",
-                value = "",
-                onValueChange = {},
+                value = state.value.nominal,
+                onValueChange = viewModel::onNominalChanged,
                 keyboardType = KeyboardType.Decimal
             )
         }
         item {
             InputTextField(
                 name = "\uD83D\uDCC8 Текущая цена (%)",
-                value = "",
-                onValueChange = {},
+                value = state.value.pricePercent,
+                onValueChange = viewModel::onPercentChanged,
                 keyboardType = KeyboardType.Decimal
             )
         }
         item {
             InputTextField(
                 name = "\uD83D\uDCBC Размер купона (руб)",
-                value = "",
-                onValueChange = {},
+                value = state.value.coupon,
+                onValueChange = viewModel::onCouponChanged,
                 keyboardType = KeyboardType.Decimal
             )
         }
         item {
             InputTextField(
                 name = "\uD83D\uDD8A НКД (руб)",
-                value = "",
-                onValueChange = {},
+                value = state.value.nkd,
+                onValueChange = viewModel::onNkdChanged,
                 keyboardType = KeyboardType.Decimal
             )
         }
         item {
             InputTextField(
                 name = "⏳ Выплат в год",
-                value = "",
-                onValueChange = {},
+                value = state.value.couponsPerYear,
+                onValueChange = viewModel::onCouponsPerYearChanged,
                 keyboardType = KeyboardType.Number
             )
         }
         item {
             InputTextField(
                 name = "\uD83D\uDDD3 Дней до погашения",
-                value = "",
-                onValueChange = {},
+                value = state.value.daysToMaturity,
+                onValueChange = viewModel::onDaysToMaturityChanged,
                 keyboardType = KeyboardType.Number
             )
         }
-        item { Text(text = "Чистая доходность: 0%", modifier = Modifier.padding(16.dp)) }
+        item {
+            Text(
+                text = "Чистая доходность: ${String.format("%.2f", state.value.yieldResult)}%",
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     }
 }
 
