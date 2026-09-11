@@ -1,7 +1,7 @@
 package com.example.bonly.domain
 
 data class Bond(
-    val name: String,
+    val name: String = "",
     val nominal: Double,
     val pricePercent: Double,
     val coupon: Double,

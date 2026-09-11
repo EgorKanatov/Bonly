@@ -5,23 +5,62 @@ import com.example.bonly.domain.Bond
 import com.example.bonly.domain.CalculateNetYieldUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class CalculatorViewModel @Inject constructor(
     private val netYieldUseCase: CalculateNetYieldUseCase
 ): ViewModel(){
-    init {
-        val testBond = Bond(
-            "Сбер",
-            1000.0,
-            95.5,
-            35.0,
-            12.0,
-            2,
-            365
-        )
-        val result = netYieldUseCase.calculateYield(testBond)
+    private val _state = MutableStateFlow(CalculatorState())
+    val state: StateFlow<CalculatorState> = _state.asStateFlow()
 
-        println("TEST_YIELD: $result")
+    init {
+        recalculate()
     }
+    private fun recalculate(){
+        val bond = Bond(
+            "",
+            _state.value.nominal.toDoubleOrNull() ?: 0.0,
+            _state.value.pricePercent.toDoubleOrNull() ?: 0.0,
+            _state.value.coupon.toDoubleOrNull() ?: 0.0,
+            _state.value.nkd.toDoubleOrNull() ?: 0.0,
+            _state.value.couponsPerYear.toIntOrNull() ?: 1,
+            _state.value.daysToMaturity.toIntOrNull() ?: 1,
+        )
+
+        val result = netYieldUseCase.calculateYield(bond)
+        _state.update { currentState ->
+            currentState.copy(yieldResult = result)
+        }
+
+    }
+
+    fun onNominalChanged(value: String) {
+        _state.update { it.copy(nominal = value) }
+        recalculate()
+    }
+    fun onPercentChanged(value: String) {
+        _state.update { it.copy(pricePercent = value) }
+        recalculate()
+    }
+    fun onCouponChanged(value: String) {
+        _state.update { it.copy(coupon = value) }
+        recalculate()
+    }
+    fun onNkdChanged(value: String) {
+        _state.update { it.copy(nkd = value) }
+        recalculate()
+    }
+    fun onCouponsPerYearChanged(value: String) {
+        _state.update { it.copy(couponsPerYear = value) }
+        recalculate()
+    }
+    fun onDaysToMaturityChanged(value: String) {
+        _state.update { it.copy(daysToMaturity = value) }
+        recalculate()
+    }
+
 }
