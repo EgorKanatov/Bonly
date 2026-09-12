@@ -4,36 +4,48 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bonly.domain.Bond
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.bonly.presentation.CalculatorViewModel
 import com.example.bonly.ui.theme.BonlyTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -58,7 +70,39 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = hiltViewModel()) {
-    val state = viewModel.state.collectAsState()
+
+    val state = viewModel.state.collectAsStateWithLifecycle()
+
+    var showBuyDatePicker by remember { mutableStateOf(false) }
+    var showMaturityDatePicker by remember { mutableStateOf(false) }
+    var tempBuyDateMillis by remember { mutableStateOf<Long?>(null) }
+
+    if (showBuyDatePicker) {
+        DateTimePickerModal(
+            onDateTimeSelected = { selectedMillis ->
+                tempBuyDateMillis = selectedMillis
+                showBuyDatePicker = false
+                showMaturityDatePicker = true
+            },
+            onDismiss = { showBuyDatePicker = false }
+        )
+    }
+    if (showMaturityDatePicker) {
+        DateTimePickerModal(
+            onDateTimeSelected = { maturityMillis ->
+                val buyMillis = tempBuyDateMillis
+                if (buyMillis != null) {
+                    viewModel.onDatesSelected(
+                        buyDateMillis = buyMillis,
+                        maturityDateMillis = maturityMillis
+                    )
+                }
+                showMaturityDatePicker = false
+            },
+            onDismiss = { showMaturityDatePicker = false }
+        )
+    }
+
     LazyColumn(
         modifier
             .fillMaxSize()
@@ -66,7 +110,12 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            Card(Modifier.fillMaxWidth().padding(6.dp)) {
+            Card(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(6.dp),
+                colors = CardDefaults.cardColors(containerColor = colorResource(R.color.white))
+            ) {
                 Column(Modifier.padding(6.dp)) {
                     Text("Параметры облигации", modifier = Modifier.padding(6.dp), fontSize = 16.sp)
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -76,31 +125,54 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
                                 value = state.value.nominal,
                                 onValueChange = viewModel::onNominalChanged,
                                 keyboardType = KeyboardType.Decimal,
-                                modifier = Modifier.fillMaxWidth(0.5f)
-
+                                modifier = Modifier.fillMaxWidth(0.5f),
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.currency_ruble_24px),
+                                        null
+                                    )
+                                }
                             )
                             InputTextField(
-                                name = "\uD83D\uDCC8 Текущая цена (%)",
+                                name = "\uD83D\uDCC8 Текущая цена",
                                 value = state.value.pricePercent,
                                 onValueChange = viewModel::onPercentChanged,
                                 keyboardType = KeyboardType.Decimal,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(1f),
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.percent_24px),
+                                        contentDescription = null
+                                    )
+                                }
                             )
                         }
                         InputTextField(
-                            name = "\uD83D\uDCBC Размер купона (руб)",
+                            name = "\uD83D\uDCBC Размер купона",
                             value = state.value.coupon,
                             onValueChange = viewModel::onCouponChanged,
                             keyboardType = KeyboardType.Decimal,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.currency_ruble_24px),
+                                    contentDescription = null
+                                )
+                            }
 
                         )
                         InputTextField(
-                            name = "\uD83D\uDD8A НКД (руб)",
+                            name = "\uD83D\uDD8A НКД",
                             value = state.value.nkd,
                             onValueChange = viewModel::onNkdChanged,
                             keyboardType = KeyboardType.Decimal,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.currency_ruble_24px),
+                                    contentDescription = null
+                                )
+                            }
 
                         )
                         InputTextField(
@@ -108,20 +180,29 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
                             value = state.value.couponsPerYear,
                             onValueChange = viewModel::onCouponsPerYearChanged,
                             keyboardType = KeyboardType.Number,
-                            modifier = Modifier.fillMaxWidth()
-
+                            modifier = Modifier.fillMaxWidth(),
+                            trailingIcon = null
                         )
                         InputTextField(
                             name = "\uD83D\uDDD3 Дней до погашения",
                             value = state.value.daysToMaturity,
                             onValueChange = viewModel::onDaysToMaturityChanged,
                             keyboardType = KeyboardType.Number,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            trailingIcon = {
+                                IconButton(onClick = { showBuyDatePicker = true }) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.calendar_month_24px),
+                                        contentDescription = "Выбрать даты"
+                                    )
+                                }
+                            }
                         )
                         TextField(
+                            shape = RoundedCornerShape(28.dp),
                             value = "Используется ставка НДФЛ 13%",
                             textStyle = LocalTextStyle.current.copy(
-                                fontSize = 12.sp
+                                fontSize = 14.sp
                             ),
                             onValueChange = {},
                             enabled = false,
@@ -155,9 +236,11 @@ fun InputTextField(
     keyboardType: KeyboardType,
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    trailingIcon: (@Composable () -> Unit)? = null
 ) {
     OutlinedTextField(
+        trailingIcon = trailingIcon,
         value = value,
         onValueChange = onValueChange,
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType),
@@ -166,3 +249,56 @@ fun InputTextField(
             .padding(6.dp)
     )
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateTimePickerModal(
+    onDateTimeSelected: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState()
+    val timePickerState = rememberTimePickerState()
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    if (!showTimePicker) {
+        DatePickerDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = {
+                    if (datePickerState.selectedDateMillis != null) {
+                        showTimePicker = true
+                    }
+                }) {
+                    Text("Далее")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) { Text("Отмена") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    } else {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = {
+                    val dateMillis = datePickerState.selectedDateMillis ?: 0L
+                    val extraTimeMillis = (timePickerState.hour * 3600 + timePickerState.minute * 60) * 1000L
+                    val finalDateTimeMillis = dateMillis + extraTimeMillis
+                    onDateTimeSelected(finalDateTimeMillis)
+                    onDismiss()
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) { Text("Отмена") }
+            },
+            text = {
+                TimePicker(state = timePickerState)
+            }
+        )
+    }
+}
+

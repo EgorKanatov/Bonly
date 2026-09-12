@@ -3,6 +3,7 @@ package com.example.bonly.presentation
 import androidx.lifecycle.ViewModel
 import com.example.bonly.domain.Bond
 import com.example.bonly.domain.CalculateNetYieldUseCase
+import com.example.bonly.domain.calculateDaysBetween
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,16 @@ class CalculatorViewModel @Inject constructor(
         }
 
     }
+
+    fun onDatesSelected(buyDateMillis: Long, maturityDateMillis: Long) {
+        val calculatedDays = calculateDaysBetween(buyDateMillis, maturityDateMillis)
+
+        _state.update { currentState ->
+            currentState.copy(daysToMaturity = calculatedDays.toString())
+        }
+        recalculate()
+    }
+
 
     fun onNominalChanged(value: String) {
         _state.update { it.copy(nominal = value) }
