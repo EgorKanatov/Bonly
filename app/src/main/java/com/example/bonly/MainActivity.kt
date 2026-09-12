@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -78,8 +79,8 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
     var tempBuyDateMillis by remember { mutableStateOf<Long?>(null) }
 
     if (showBuyDatePicker) {
-        DateTimePickerModal(
-            onDateTimeSelected = { selectedMillis ->
+        DatePickerModal(
+            onDateSelected = { selectedMillis ->
                 tempBuyDateMillis = selectedMillis
                 showBuyDatePicker = false
                 showMaturityDatePicker = true
@@ -87,9 +88,10 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
             onDismiss = { showBuyDatePicker = false }
         )
     }
+
     if (showMaturityDatePicker) {
-        DateTimePickerModal(
-            onDateTimeSelected = { maturityMillis ->
+        DatePickerModal(
+            onDateSelected = { maturityMillis ->
                 val buyMillis = tempBuyDateMillis
                 if (buyMillis != null) {
                     viewModel.onDatesSelected(
@@ -102,6 +104,7 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
             onDismiss = { showMaturityDatePicker = false }
         )
     }
+
 
     LazyColumn(
         modifier
@@ -129,7 +132,8 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
                                 trailingIcon = {
                                     Icon(
                                         painter = painterResource(R.drawable.currency_ruble_24px),
-                                        null
+                                        modifier = Modifier.alpha(0.5f),
+                                        contentDescription = null
                                     )
                                 }
                             )
@@ -142,25 +146,12 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
                                 trailingIcon = {
                                     Icon(
                                         painter = painterResource(R.drawable.percent_24px),
+                                        modifier = Modifier.alpha(0.5f),
                                         contentDescription = null
                                     )
                                 }
                             )
                         }
-                        InputTextField(
-                            name = "\uD83D\uDCBC Размер купона",
-                            value = state.value.coupon,
-                            onValueChange = viewModel::onCouponChanged,
-                            keyboardType = KeyboardType.Decimal,
-                            modifier = Modifier.fillMaxWidth(),
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.currency_ruble_24px),
-                                    contentDescription = null
-                                )
-                            }
-
-                        )
                         InputTextField(
                             name = "\uD83D\uDD8A НКД",
                             value = state.value.nkd,
@@ -170,21 +161,37 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
                             trailingIcon = {
                                 Icon(
                                     painter = painterResource(R.drawable.currency_ruble_24px),
+                                    modifier = Modifier.alpha(0.5f),
                                     contentDescription = null
                                 )
                             }
-
                         )
+                        Row() {
+                            InputTextField(
+                                name = "\uD83D\uDCBC Размер купона",
+                                value = state.value.coupon,
+                                onValueChange = viewModel::onCouponChanged,
+                                keyboardType = KeyboardType.Decimal,
+                                modifier = Modifier.fillMaxWidth(0.5f),
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.currency_ruble_24px),
+                                        modifier = Modifier.alpha(0.5f),
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                            InputTextField(
+                                name = "⏳ Выплат в год",
+                                value = state.value.couponsPerYear,
+                                onValueChange = viewModel::onCouponsPerYearChanged,
+                                keyboardType = KeyboardType.Number,
+                                modifier = Modifier.fillMaxWidth(1f),
+                                trailingIcon = null
+                            )
+                        }
                         InputTextField(
-                            name = "⏳ Выплат в год",
-                            value = state.value.couponsPerYear,
-                            onValueChange = viewModel::onCouponsPerYearChanged,
-                            keyboardType = KeyboardType.Number,
-                            modifier = Modifier.fillMaxWidth(),
-                            trailingIcon = null
-                        )
-                        InputTextField(
-                            name = "\uD83D\uDDD3 Дней до погашения",
+                            name = "Дней до погашения",
                             value = state.value.daysToMaturity,
                             onValueChange = viewModel::onDaysToMaturityChanged,
                             keyboardType = KeyboardType.Number,
@@ -252,53 +259,32 @@ fun InputTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateTimePickerModal(
-    onDateTimeSelected: (Long) -> Unit,
+fun DatePickerModal(
+    onDateSelected: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState()
-    val timePickerState = rememberTimePickerState()
-    var showTimePicker by remember { mutableStateOf(false) }
 
-    if (!showTimePicker) {
-        DatePickerDialog(
-            onDismissRequest = onDismiss,
-            confirmButton = {
-                TextButton(onClick = {
-                    if (datePickerState.selectedDateMillis != null) {
-                        showTimePicker = true
-                    }
-                }) {
-                    Text("Далее")
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                datePickerState.selectedDateMillis?.let { selectedMillis ->
+                    onDateSelected(selectedMillis)
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) { Text("Отмена") }
+                onDismiss()
+            }) {
+                Text("OK")
             }
-        ) {
-            DatePicker(state = datePickerState)
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Отмена")
+            }
         }
-    } else {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            confirmButton = {
-                TextButton(onClick = {
-                    val dateMillis = datePickerState.selectedDateMillis ?: 0L
-                    val extraTimeMillis = (timePickerState.hour * 3600 + timePickerState.minute * 60) * 1000L
-                    val finalDateTimeMillis = dateMillis + extraTimeMillis
-                    onDateTimeSelected(finalDateTimeMillis)
-                    onDismiss()
-                }) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) { Text("Отмена") }
-            },
-            text = {
-                TimePicker(state = timePickerState)
-            }
-        )
+    ) {
+        DatePicker(state = datePickerState)
     }
 }
+
 
