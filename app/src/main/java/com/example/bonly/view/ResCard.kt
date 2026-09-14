@@ -79,7 +79,7 @@ fun ResCard(state: State<CalculatorState>) {
                             .fillMaxWidth(0.15f),
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.percent_24px),
+                            painter = painterResource(R.drawable.bar_chart_24px),
                             null,
                             modifier = Modifier.fillMaxSize(),
                             )
