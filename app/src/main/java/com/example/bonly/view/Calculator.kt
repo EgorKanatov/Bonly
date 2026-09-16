@@ -55,6 +55,7 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
 
     if (showBuyDatePicker) {
         DatePickerModal(
+            title = "Выберите дату покупки",
             onDateSelected = { selectedMillis ->
                 tempBuyDateMillis = selectedMillis
                 showBuyDatePicker = false
@@ -66,6 +67,7 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
 
     if (showMaturityDatePicker) {
         DatePickerModal(
+            title = "Выберите дату погашения",
             onDateSelected = { maturityMillis ->
                 val buyMillis = tempBuyDateMillis
                 if (buyMillis != null) {
@@ -79,6 +81,7 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
             onDismiss = { showMaturityDatePicker = false }
         )
     }
+
 
 
     LazyColumn(
@@ -240,6 +243,7 @@ fun InputTextField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
+    title: String,
     onDateSelected: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -263,6 +267,14 @@ fun DatePickerModal(
             }
         }
     ) {
-        DatePicker(state = datePickerState)
+        DatePicker(
+            state = datePickerState,
+            title = {
+                Text(
+                    text = title,
+                    modifier = Modifier.padding(start = 24.dp, top = 16.dp)
+                )
+            }
+        )
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -100,9 +101,33 @@ fun ResCard(state: State<CalculatorState>) {
                         )
                     }
                 }
-
             }
+            Row(Modifier.fillMaxWidth().padding(6.dp)) {
+                OutlinedCard(
+                    Modifier.padding(6.dp),
+                    colors = CardDefaults.outlinedCardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Column() {
+                        Text("Сумма купонов: ", Modifier.padding(8.dp))
+                        Text(
+                            text = "${
+                                String.format(
+                                    "%.2f",
+                                    state.value.couponSum
+                                )
+                            }₽",
+                            modifier = Modifier.padding(8.dp),
+                            fontSize = 18.sp,
+                        )
+                    }
+                }
+            }
+
         }
 
     }
+
+
 }

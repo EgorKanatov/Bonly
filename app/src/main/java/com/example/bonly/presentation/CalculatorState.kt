@@ -7,5 +7,6 @@ data class CalculatorState(
     val nkd: String = "0",
     val couponsPerYear: String = "2",
     val daysToMaturity: String = "365",
-    val yieldResult: Double = 0.0
+    val yieldResult: Double = 0.0,
+    val couponSum: Double = 0.0
 )
