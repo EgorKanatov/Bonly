@@ -106,11 +106,11 @@ fun ResCard(state: State<CalculatorState>) {
                 OutlinedCard(
                     Modifier.padding(6.dp),
                     colors = CardDefaults.outlinedCardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                     )
                 ) {
                     Column() {
-                        Text("Сумма купонов: ", Modifier.padding(8.dp))
+                        Text("Сумма купонов ", Modifier.padding(8.dp))
                         Text(
                             text = "${
                                 String.format(
