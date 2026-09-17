@@ -26,10 +26,10 @@ class CalculatorViewModel @Inject constructor(
     private fun recalculate(){
         val bond = Bond(
             "",
-            _state.value.nominal.toDoubleOrNull() ?: 0.0,
-            _state.value.pricePercent.toDoubleOrNull() ?: 0.0,
-            _state.value.coupon.toDoubleOrNull() ?: 0.0,
-            _state.value.nkd.toDoubleOrNull() ?: 0.0,
+            _state.value.nominal.replace(',', '.').toDoubleOrNull() ?: 0.0,
+            _state.value.pricePercent.replace(',', '.').toDoubleOrNull() ?: 0.0,
+            _state.value.coupon.replace(',', '.').toDoubleOrNull() ?: 0.0,
+            _state.value.nkd.replace(',', '.').toDoubleOrNull() ?: 0.0,
             _state.value.couponsPerYear.toIntOrNull() ?: 1,
             _state.value.daysToMaturity.toIntOrNull() ?: 1,
         )

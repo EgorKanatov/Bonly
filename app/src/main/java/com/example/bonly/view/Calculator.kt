@@ -165,13 +165,10 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
                                     )
                                 }
                             )
-                            InputTextField(
-                                name = "⏳ Выплат в год",
-                                value = state.value.couponsPerYear,
-                                onValueChange = viewModel::onCouponsPerYearChanged,
-                                keyboardType = KeyboardType.Number,
-                                modifier = Modifier.fillMaxWidth(1f),
-                                trailingIcon = null
+                            CouponsDropdown(
+                                selectedValue = state.value.couponsPerYear,
+                                onValueSelected = viewModel::onCouponsPerYearChanged,
+                                modifier = Modifier.weight(1f).padding(6.dp)
                             )
                         }
                         InputTextField(
