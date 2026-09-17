@@ -2,7 +2,6 @@ package com.example.bonly.presentation
 
 import androidx.lifecycle.ViewModel
 import com.example.bonly.domain.Bond
-import com.example.bonly.domain.CalculateCouponSumUseCase
 import com.example.bonly.domain.CalculateNetYieldUseCase
 import com.example.bonly.domain.calculateDaysBetween
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.update
 @HiltViewModel
 class CalculatorViewModel @Inject constructor(
     private val netYieldUseCase: CalculateNetYieldUseCase,
-    private val calculateCouponSumUseCase: CalculateCouponSumUseCase
 ): ViewModel(){
     private val _state = MutableStateFlow(CalculatorState())
     val state: StateFlow<CalculatorState> = _state.asStateFlow()
@@ -35,7 +33,7 @@ class CalculatorViewModel @Inject constructor(
         )
 
         val result = netYieldUseCase.calculateYield(bond)
-        val couponPerYear = calculateCouponSumUseCase.calculateCouponSum(bond)
+        val couponPerYear = netYieldUseCase.totalGrossCoupons()
         _state.update { currentState ->
             currentState.copy(yieldResult = result, couponSum = couponPerYear)
         }
