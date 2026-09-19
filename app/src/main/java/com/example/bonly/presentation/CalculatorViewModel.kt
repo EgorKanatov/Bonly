@@ -39,6 +39,12 @@ class CalculatorViewModel @Inject constructor(
         }
 
     }
+    fun onNameChanged(name: String) {
+        _state.update { currentState ->
+            currentState.copy(name = name)
+        }
+        recalculate()
+    }
 
     fun onDatesSelected(buyDateMillis: Long, maturityDateMillis: Long) {
         val calculatedDays = calculateDaysBetween(buyDateMillis, maturityDateMillis)

@@ -106,6 +106,14 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
                         fontWeight = FontWeight.Bold
                     )
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        InputTextField(
+                            name = "Название",
+                            value = state.value.name,
+                            onValueChange = viewModel::onNameChanged,
+                            keyboardType = KeyboardType.Text,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+
                         Row() {
                             InputTextField(
                                 name = "\uD83C\uDFE6 Номинал",

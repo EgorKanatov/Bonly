@@ -1,6 +1,7 @@
 package com.example.bonly.presentation
 
 data class CalculatorState(
+    val name: String = "",
     val nominal: String = "1000",
     val pricePercent: String = "100",
     val coupon: String = "0",

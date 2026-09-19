@@ -38,7 +38,7 @@ fun ResCard(state: State<CalculatorState>) {
     } else if (state.value.yieldResult < 0) {
         LightRed
     } else {
-        Color.LightGray
+        Color.Transparent
     }
 
     val textColor = if (state.value.yieldResult > 0) {
