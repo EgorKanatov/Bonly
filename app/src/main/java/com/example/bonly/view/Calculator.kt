@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -176,7 +174,9 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel = h
                             CouponsDropdown(
                                 selectedValue = state.value.couponsPerYear,
                                 onValueSelected = viewModel::onCouponsPerYearChanged,
-                                modifier = Modifier.weight(1f).padding(6.dp)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(6.dp)
                             )
                         }
                         InputTextField(

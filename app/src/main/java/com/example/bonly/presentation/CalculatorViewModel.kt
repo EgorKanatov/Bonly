@@ -14,14 +14,15 @@ import kotlinx.coroutines.flow.update
 @HiltViewModel
 class CalculatorViewModel @Inject constructor(
     private val netYieldUseCase: CalculateNetYieldUseCase,
-): ViewModel(){
+) : ViewModel() {
     private val _state = MutableStateFlow(CalculatorState())
     val state: StateFlow<CalculatorState> = _state.asStateFlow()
 
     init {
         recalculate()
     }
-    private fun recalculate(){
+
+    private fun recalculate() {
         val bond = Bond(
             "",
             _state.value.nominal.replace(',', '.').toDoubleOrNull() ?: 0.0,
@@ -39,6 +40,7 @@ class CalculatorViewModel @Inject constructor(
         }
 
     }
+
     fun onNameChanged(name: String) {
         _state.update { currentState ->
             currentState.copy(name = name)
@@ -60,22 +62,27 @@ class CalculatorViewModel @Inject constructor(
         _state.update { it.copy(nominal = value) }
         recalculate()
     }
+
     fun onPercentChanged(value: String) {
         _state.update { it.copy(pricePercent = value) }
         recalculate()
     }
+
     fun onCouponChanged(value: String) {
         _state.update { it.copy(coupon = value) }
         recalculate()
     }
+
     fun onNkdChanged(value: String) {
         _state.update { it.copy(nkd = value) }
         recalculate()
     }
+
     fun onCouponsPerYearChanged(value: String) {
         _state.update { it.copy(couponsPerYear = value) }
         recalculate()
     }
+
     fun onDaysToMaturityChanged(value: String) {
         _state.update { it.copy(daysToMaturity = value) }
         recalculate()
