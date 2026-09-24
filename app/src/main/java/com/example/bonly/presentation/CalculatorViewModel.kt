@@ -1,8 +1,11 @@
 package com.example.bonly.presentation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.bonly.data.BondReportEntity
 import com.example.bonly.domain.Bond
 import com.example.bonly.domain.CalculateNetYieldUseCase
+import com.example.bonly.domain.DatabaseUseCases
 import com.example.bonly.domain.calculateDaysBetween
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -10,10 +13,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class CalculatorViewModel @Inject constructor(
     private val netYieldUseCase: CalculateNetYieldUseCase,
+    private val databaseUseCases: DatabaseUseCases,
 ) : ViewModel() {
     private val _state = MutableStateFlow(CalculatorState())
     val state: StateFlow<CalculatorState> = _state.asStateFlow()
@@ -40,6 +45,21 @@ class CalculatorViewModel @Inject constructor(
         }
 
     }
+
+    fun saveReport() {
+        viewModelScope.launch {
+            val report = BondReportEntity(
+                name = state.value.name.ifBlank { "Без названия" },
+                currentPrice = (state.value.nominal.toDoubleOrNull()
+                    ?: 0.0) * (state.value.pricePercent.toDoubleOrNull() ?: 0.0) / 100,
+                coupon = state.value.coupon.toDoubleOrNull() ?: 0.0,
+                netYield = state.value.yieldResult,
+                totalCoupons = state.value.couponSum,
+            )
+            databaseUseCases.save(report)
+        }
+    }
+
 
     fun onNameChanged(name: String) {
         _state.update { currentState ->
