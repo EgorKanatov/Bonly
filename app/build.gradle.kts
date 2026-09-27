@@ -39,10 +39,7 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.navigation3.ui)
-    implementation(libs.androidx.navigation3.runtime)
-    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    implementation(libs.androidx.material3.adaptive.navigation3)
+    implementation("androidx.navigation:navigation-compose:2.8.2")
     implementation(libs.kotlinx.serialization.core)
 
     val room_version = "3.0.3"
