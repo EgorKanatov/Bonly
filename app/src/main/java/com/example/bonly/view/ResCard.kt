@@ -1,12 +1,17 @@
 package com.example.bonly.view
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -125,6 +130,22 @@ fun ResCard(state: State<CalculatorState>) {
                             fontSize = 18.sp,
                         )
                     }
+                }
+                Spacer(Modifier
+                    .fillMaxWidth()
+                    .weight(1f))
+                FloatingActionButton(
+                    onClick = {},
+                    Modifier
+                        .padding(6.dp)
+                        .size(80.dp),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ) {
+                    Icon(
+                        modifier = Modifier.fillMaxSize(0.5f),
+                        painter = painterResource(R.drawable.save_24px),
+                        contentDescription = null
+                    )
                 }
             }
 
