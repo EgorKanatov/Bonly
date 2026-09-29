@@ -29,22 +29,25 @@ class CalculatorViewModel @Inject constructor(
 
     private fun recalculate() {
         val bond = Bond(
-            "",
-            _state.value.nominal.replace(',', '.').toDoubleOrNull() ?: 0.0,
-            _state.value.pricePercent.replace(',', '.').toDoubleOrNull() ?: 0.0,
-            _state.value.coupon.replace(',', '.').toDoubleOrNull() ?: 0.0,
-            _state.value.nkd.replace(',', '.').toDoubleOrNull() ?: 0.0,
-            _state.value.couponsPerYear.toIntOrNull() ?: 1,
-            _state.value.daysToMaturity.toIntOrNull() ?: 1,
+            name = _state.value.name,
+            nominal = _state.value.nominal.toDoubleOrNull() ?: 0.0,
+            pricePercent = _state.value.pricePercent.toDoubleOrNull() ?: 0.0,
+            coupon = _state.value.coupon.toDoubleOrNull() ?: 0.0,
+            nkd = _state.value.nkd.toDoubleOrNull() ?: 0.0,
+            couponsPerYear = _state.value.couponsPerYear.toIntOrNull() ?: 1,
+            daysToMaturity = _state.value.daysToMaturity.toIntOrNull() ?: 1
         )
 
         val result = netYieldUseCase.calculateYield(bond)
-        val couponPerYear = netYieldUseCase.totalGrossCoupons()
-        _state.update { currentState ->
-            currentState.copy(yieldResult = result, couponSum = couponPerYear)
-        }
 
+        _state.update { currentState ->
+            currentState.copy(
+                yieldResult = result.netYield,
+                couponSum = result.totalCoupons
+            )
+        }
     }
+
 
     fun saveReport() {
         viewModelScope.launch {
@@ -77,24 +80,27 @@ class CalculatorViewModel @Inject constructor(
         recalculate()
     }
 
-
-    fun onNominalChanged(value: String) {
-        _state.update { it.copy(nominal = value) }
+    fun onNominalChanged(input: String) {
+        val formatted = formatNumberInput(input)
+        _state.update { it.copy(nominal = formatted) }
         recalculate()
     }
 
-    fun onPercentChanged(value: String) {
-        _state.update { it.copy(pricePercent = value) }
+    fun onPercentChanged(input: String) {
+        val formatted = formatNumberInput(input)
+        _state.update { it.copy(pricePercent = formatted) }
         recalculate()
     }
 
-    fun onCouponChanged(value: String) {
-        _state.update { it.copy(coupon = value) }
+    fun onCouponChanged(input: String) {
+        val formatted = formatNumberInput(input)
+        _state.update { it.copy(coupon = formatted) }
         recalculate()
     }
 
-    fun onNkdChanged(value: String) {
-        _state.update { it.copy(nkd = value) }
+    fun onNkdChanged(input: String) {
+        val formatted = formatNumberInput(input)
+        _state.update { it.copy(nkd = formatted) }
         recalculate()
     }
 
@@ -103,9 +109,26 @@ class CalculatorViewModel @Inject constructor(
         recalculate()
     }
 
-    fun onDaysToMaturityChanged(value: String) {
-        _state.update { it.copy(daysToMaturity = value) }
+    fun onDaysToMaturityChanged(input: String) {
+        val cleanDigits = input.filter { it.isDigit() }
+        val formatted = if (cleanDigits.length > 1 && cleanDigits.startsWith("0")) {
+            cleanDigits.dropWhile { it == '0' }.ifEmpty { "0" }
+        } else {
+            cleanDigits
+        }
+        _state.update { it.copy(daysToMaturity = formatted) }
         recalculate()
     }
 
+}
+private fun formatNumberInput(input: String): String {
+    val normalized = input.replace(',', '.')
+
+    if (normalized.isEmpty() || normalized == ".") return normalized
+
+    return if (normalized.length > 1 && normalized.startsWith("0") && !normalized.startsWith("0.")) {
+        normalized.dropWhile { it == '0' }.ifEmpty { "0" }
+    } else {
+        normalized
+    }
 }
