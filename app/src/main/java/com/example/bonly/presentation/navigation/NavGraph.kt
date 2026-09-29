@@ -17,19 +17,11 @@ fun AppNavGraph(
         modifier = modifier
     ) {
         composable<Screen.Calculator> {
-            CalculatorScreen(
-                onNavigateToReports = {
-                    navController.navigate(Screen.Reports)
-                }
-            )
+            CalculatorScreen()
         }
 
         composable<Screen.Reports> {
-            ReportsScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
+            ReportsScreen()
         }
     }
 }
