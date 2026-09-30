@@ -222,7 +222,11 @@ fun Calculator(viewModel: CalculatorViewModel = hiltViewModel()) {
             }
         }
         item {
-            ResCard(state)
+            ResCard(
+                state = state,
+                onClick = {
+                    viewModel.saveReport()
+                })
         }
     }
 }

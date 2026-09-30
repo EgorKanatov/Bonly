@@ -1,10 +1,8 @@
 package com.example.bonly.view
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,7 +31,10 @@ import com.example.bonly.ui.theme.NGreen
 import com.example.bonly.ui.theme.NRed
 
 @Composable
-fun ResCard(state: State<CalculatorState>) {
+fun ResCard(
+    state: State<CalculatorState>,
+    onClick: () -> Unit
+) {
 
     val cardColor = if (state.value.yieldResult > 0) {
         LightGreen
@@ -131,11 +132,13 @@ fun ResCard(state: State<CalculatorState>) {
                         )
                     }
                 }
-                Spacer(Modifier
-                    .fillMaxWidth()
-                    .weight(1f))
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
                 FloatingActionButton(
-                    onClick = {},
+                    onClick = onClick,
                     Modifier
                         .padding(6.dp)
                         .size(80.dp),
